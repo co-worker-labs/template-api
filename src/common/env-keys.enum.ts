@@ -1,0 +1,28 @@
+export enum EnvKeys {
+  PORT = 'PORT',
+  NODE_ENV = 'NODE_ENV',
+  CONTEXT_PATH = 'CONTEXT_PATH',
+
+  // app
+  APP_ID = 'APP_ID',
+
+  // logging
+  LOG_LEVEL = 'LOG_LEVEL',
+  LOG_PRETTY = 'LOG_PRETTY',
+
+  // http
+  HTTP_TIMEOUT = 'HTTP_TIMEOUT',
+  HTTP_MAX_RETRIES = 'HTTP_MAX_RETRIES',
+
+  // request
+  REQUEST_CACHE_TTL = 'REQUEST_CACHE_TTL',
+
+  // jwt
+  JWKS_URI = 'JWKS_URI',
+  JWKS_FILE = 'JWKS_FILE',
+
+  // Redis
+  REDIS_URL = 'REDIS_URL',
+
+  FALLBACK_LANGUAGE = 'FALLBACK_LANGUAGE',
+}

@@ -1,0 +1,13 @@
+{
+  "success": "Success",
+  "not_found": "Not Found",
+  "internal_error": "Service Error. Please try again later",
+  "token_missing": "Access Token cannot be empty",
+  "token_invalid": "Access Token is invalid",
+  "token_expired": "Access Token already was expired",
+  "parameter_missing": "Missing Parameter",
+  "parameter_invalid": "Invalid Parameter",
+  "invalid_id": "Invalid ID",
+  "duplicated": "Duplicated",
+  "not_supported": "Not supported"
+}

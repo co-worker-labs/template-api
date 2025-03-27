@@ -1,0 +1,12 @@
+{
+  "success": "成功",
+  "internal_error": "系统错误，请稍后重试",
+  "token_missing": "缺少访问凭证",
+  "token_invalid": "无效的访问凭证",
+  "token_expired": "访问凭证已过期",
+  "parameter_missing": "缺少参数",
+  "parameter_invalid": "无效参数",
+  "invalid_id": "无效的ID",
+  "duplicated": "记录已存在",
+  "not_supported": "不支持的操作"
+}
