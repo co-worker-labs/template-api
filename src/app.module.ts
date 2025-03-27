@@ -18,6 +18,7 @@ import { RedisManagerModule } from './common/redis-manager/redis-manager.module'
 import { PrismaModule } from './common/prisma/prisma.module';
 import { SignatureModule } from './signature/signature.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { CacheManagerModule } from './common/cache-manager/cache-manager.module';
 
 @Module({
   imports: [
@@ -64,8 +65,9 @@ import { ScheduleModule } from '@nestjs/schedule';
       inject: [ConfigService],
       logging: true,
     }),
-    ScheduleModule.forRoot(),
     RedisManagerModule,
+    CacheManagerModule,
+    ScheduleModule.forRoot(),
     PrismaModule,
     HealthModule,
     SignatureModule,

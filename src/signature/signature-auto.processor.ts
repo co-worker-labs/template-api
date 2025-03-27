@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { KEYPAIR_LIST_LENGTH, SignatureService } from './signature.service';
 import { Cron } from '@nestjs/schedule';
 import { RedisService } from '../common/redis-manager/redis-manager.service';
-import { isEmptyArray } from '../common/fns';
+import { CacheService } from '../common/cache-manager/cache.service';
 
 @Injectable()
 export class SignatureAutoProcessor implements OnModuleInit {
@@ -11,6 +11,7 @@ export class SignatureAutoProcessor implements OnModuleInit {
   constructor(
     private readonly signatureService: SignatureService,
     private readonly redisService: RedisService,
+    private readonly cacheService: CacheService,
   ) {}
 
   async onModuleInit() {
@@ -27,14 +28,19 @@ export class SignatureAutoProcessor implements OnModuleInit {
           [this.redisService.keys().signatureKeypairInitLock()],
           1000 * 60 * 5,
           async (signal) => {
-            const list = await this.signatureService.findKeypairList();
-            if (isEmptyArray(list)) {
+            const count = await this.signatureService.count();
+            if (count <= 0) {
+              const key = this.cacheService.keys().signatureCerts();
+              await this.cacheService.manager().del(key);
               this.logger.log('init signature keypair on startup');
               await Promise.all(
                 Array.from({ length: KEYPAIR_LIST_LENGTH }).map(() =>
                   this.signatureService.generate(),
                 ),
               );
+              setTimeout(async () => {
+                await this.cacheService.manager().del(key);
+              }, 1000 * 3);
             }
           },
         );
@@ -63,6 +69,9 @@ export class SignatureAutoProcessor implements OnModuleInit {
           1000 * 60 * 5,
           async (signal) => {
             this.logger.log('auto generate keypair monthly');
+            const key = this.cacheService.keys().signatureCerts();
+            await this.cacheService.manager().del(key);
+
             await this.signatureService.generate();
 
             const count = await this.signatureService.count();
@@ -70,6 +79,9 @@ export class SignatureAutoProcessor implements OnModuleInit {
               this.logger.log('remove oldest keypair monthly');
               await this.signatureService.deleteOldest();
             }
+            setTimeout(async () => {
+              await this.cacheService.manager().del(key);
+            }, 1000 * 3);
           },
         );
     } catch (e) {

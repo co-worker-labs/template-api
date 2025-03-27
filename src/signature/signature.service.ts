@@ -2,38 +2,75 @@ import { Injectable, Logger } from '@nestjs/common';
 import { KeypairVO } from './vo/keypair.vo';
 import * as crypto from 'node:crypto';
 import { PrismaService } from '../common/prisma/prisma.service';
+import { CacheService } from '../common/cache-manager/cache.service';
 
 export const KEYPAIR_LIST_LENGTH = 3;
+
+const CERT_TTL = 1000 * 60 * 60 * 24;
+const CERT_REFRESH_THRESHOLD = 1000 * 60 * 60 * 12;
+
+const LOCAL_CACHE_KEY = 'signature-keyObject';
+const LOCAL_CACHE_MAX_SIZE = KEYPAIR_LIST_LENGTH * 2;
+const LOCAL_CACHE_TTL = CERT_TTL;
 
 @Injectable()
 export class SignatureService {
   private readonly logger = new Logger(SignatureService.name);
-  private items = new Map<bigint, crypto.KeyObject>();
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cacheService: CacheService,
+  ) {}
 
   async findKeypairList(): Promise<KeypairVO[]> {
-    const list = await this.prisma.signature_keypair.findMany({
-      take: KEYPAIR_LIST_LENGTH,
-      orderBy: { id: 'desc' },
-      select: { id: true, public_key: true },
-    });
-    return list.map((it) => {
-      return {
-        id: it.id.toString(),
-        publicKey: it.public_key,
-      } as KeypairVO;
-    });
+    const key = this.cacheService.keys().signatureCerts();
+    return this.cacheService.manager().wrap(
+      key,
+      async () => {
+        const list = await this.prisma.signature_keypair.findMany({
+          take: KEYPAIR_LIST_LENGTH,
+          orderBy: { id: 'desc' },
+          select: { id: true, public_key: true },
+        });
+        return list.map((it) => {
+          return {
+            id: it.id.toString(),
+            publicKey: it.public_key,
+          } as KeypairVO;
+        });
+      },
+      {
+        ttl: CERT_TTL,
+        refreshThreshold: CERT_REFRESH_THRESHOLD,
+      },
+    );
+  }
+
+  cachedKeyObjects() {
+    return this.cacheService.local(LOCAL_CACHE_KEY, LOCAL_CACHE_MAX_SIZE);
   }
 
   async decrypt(id: bigint, encrypted: string): Promise<string> {
-    let keyObject = this.items.get(id);
+    let keyObject = await this.cachedKeyObjects().get(id.toString());
     if (!keyObject) {
-      const result = await this.prisma.signature_keypair.findUnique({
-        where: { id },
-        select: { private_key: true },
-      });
-      const privateKey = result?.private_key;
+      const key = this.cacheService.keys().signatureKeypair(id);
+      const privateKey = await this.cacheService.manager().wrap(
+        key,
+        async () => {
+          const result = await this.prisma.signature_keypair.findUnique({
+            where: { id },
+            select: { private_key: true },
+          });
+          const privateKey = result?.private_key;
+          if (!privateKey) {
+            return null;
+          }
+        },
+        {
+          ttl: CERT_TTL,
+          refreshThreshold: CERT_REFRESH_THRESHOLD,
+        },
+      );
       if (!privateKey) {
         return null;
       }
@@ -42,6 +79,11 @@ export class SignatureService {
         format: 'pem',
         encoding: 'base64',
       });
+      await this.cachedKeyObjects().set(
+        id.toString(),
+        keyObject,
+        LOCAL_CACHE_TTL,
+      );
     }
     try {
       return crypto
@@ -91,6 +133,9 @@ export class SignatureService {
     });
     if (oldest) {
       await this.prisma.signature_keypair.delete({ where: { id: oldest.id } });
+      const key = this.cacheService.keys().signatureKeypair(oldest.id);
+      await this.cacheService.manager().del(key);
+      await this.cachedKeyObjects().delete(oldest.id.toString());
     }
   }
 }

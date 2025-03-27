@@ -10,6 +10,10 @@ export class RedisKeyService {
     this.appId = configService.getOrThrow<string>(EnvKeys.APP_ID);
   }
 
+  signatureCerts() {
+    return `${this.appId}:signature:certs`;
+  }
+
   signatureKeypair(id: bigint) {
     return `${this.appId}:signature:keypair:${id}`;
   }
