@@ -18,6 +18,7 @@ import { EnvKeys } from './common/env-keys.enum';
 import { ConfigService } from '@nestjs/config';
 import { I18nService } from 'nestjs-i18n';
 import { ExceptionCacheFilter } from './common/exception/exception-cache.filter';
+import helmet from '@fastify/helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -56,6 +57,9 @@ async function bootstrap() {
   app.useGlobalFilters(
     new ExceptionCacheFilter(httpAdapter, i18nService as any),
   );
+
+  // somewhere in your initialization file
+  await app.register(helmet);
 
   const config = app.get(ConfigService);
   const contextPath = config.get<string>(EnvKeys.CONTEXT_PATH);
