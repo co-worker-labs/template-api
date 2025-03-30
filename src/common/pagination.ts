@@ -21,22 +21,22 @@ export class PageQuery {
 
 export class PageResult<T> {
   total: number;
-  hasMore: boolean;
+  has_more: boolean;
   list: T[];
 
-  constructor(total: number, list: T[], hasMore: boolean) {
+  constructor(total: number, list: T[], has_more: boolean) {
     this.total = total;
-    this.hasMore = hasMore;
+    this.has_more = has_more;
     this.list = list;
   }
 }
 
 export class PageResultForApp<T> {
-  hasMore: boolean;
+  has_more: boolean;
   list: T[];
 
-  constructor(list: T[], hasMore: boolean) {
-    this.hasMore = hasMore;
+  constructor(list: T[], has_more: boolean) {
+    this.has_more = has_more;
     this.list = list || [];
   }
 }

@@ -34,7 +34,7 @@ export class SignatureService {
         return list.map((it) => {
           return {
             id: it.id.toString(),
-            publicKey: it.public_key,
+            public_key: it.public_key,
           } as KeypairVO;
         });
       },

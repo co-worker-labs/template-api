@@ -1,4 +1,4 @@
 export class KeypairVO {
   id: string;
-  publicKey: string;
+  public_key: string;
 }

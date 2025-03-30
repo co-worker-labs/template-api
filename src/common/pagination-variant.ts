@@ -24,12 +24,12 @@ export class TsPageQuery {
 }
 
 export class TsPageResult<T> {
-  hasMore: boolean;
+  has_more: boolean;
   next: number;
   list: T[];
 
   constructor(list: T[], next: number) {
-    this.hasMore = !!next;
+    this.has_more = !!next;
     this.next = next;
     this.list = list;
   }

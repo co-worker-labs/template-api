@@ -19,7 +19,7 @@ export class ResponseInterceptor implements NestInterceptor {
   responseHandler(res: any, context: ExecutionContext) {
     return JSON.stringify(
       {
-        reqId: context.switchToHttp().getRequest().id,
+        rid: context.switchToHttp().getRequest().id,
         code: Errs.SUCCESS.code,
         msg: 'success',
         ts: Date.now(),
