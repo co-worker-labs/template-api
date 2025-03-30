@@ -28,7 +28,7 @@ export class ExceptionCacheFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let code = 500;
+    let code = -1;
     let msg = exception.message;
     let detail = null;
     let args = null;
@@ -73,9 +73,9 @@ export class ExceptionCacheFilter implements ExceptionFilter {
     const response = ctx.getResponse();
 
     const res = {
-      requestId: request.id,
+      reqId: request.id,
       code: code === -1 ? status : code,
-      message: this.i18n.t(`errors.${msg}`, { args: args }),
+      msg: this.i18n.t(`errors.${msg}`, { args: args }),
       ts: Date.now(),
     };
 

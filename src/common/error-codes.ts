@@ -10,7 +10,7 @@ export class ErrorCode {
 }
 
 export class Errs {
-  static readonly SUCCESS = ErrorCode.of(0, 'success');
+  static readonly SUCCESS = ErrorCode.of(200, 'success');
   static readonly NOT_FOUND = ErrorCode.of(404, 'not_found');
   static readonly MISSING_TOKEN = ErrorCode.of(401_01, 'token_missing');
   static readonly INVALID_TOKEN = ErrorCode.of(401_02, 'token_invalid');

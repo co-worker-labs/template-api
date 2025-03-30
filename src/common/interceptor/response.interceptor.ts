@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { jsonStringifyReplacer } from '../fns';
+import { Errs } from '../error-codes';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
@@ -18,9 +19,9 @@ export class ResponseInterceptor implements NestInterceptor {
   responseHandler(res: any, context: ExecutionContext) {
     return JSON.stringify(
       {
-        requestId: context.switchToHttp().getRequest().id,
-        code: 0,
-        message: 'success',
+        reqId: context.switchToHttp().getRequest().id,
+        code: Errs.SUCCESS.code,
+        msg: 'success',
         ts: Date.now(),
         data: res,
       },
