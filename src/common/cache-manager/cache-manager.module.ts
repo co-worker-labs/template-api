@@ -3,6 +3,7 @@ import { CacheService } from './cache.service';
 import { RedisService } from '../redis-manager/redis-manager.service';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisManagerModule } from '../redis-manager/redis-manager.module';
+import { LocalKeyService } from './local-key.service';
 
 @Global()
 @Module({
@@ -18,7 +19,7 @@ import { RedisManagerModule } from '../redis-manager/redis-manager.module';
       imports: [RedisManagerModule],
     }),
   ],
-  providers: [CacheService],
+  providers: [CacheService, LocalKeyService],
   exports: [CacheService],
 })
 export class CacheManagerModule {}

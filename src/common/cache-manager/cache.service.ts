@@ -4,6 +4,7 @@ import { Cache } from 'cache-manager';
 import { RedisKeyService } from '../redis-manager/redis-key.service';
 import QuickLRU from 'quick-lru';
 import Keyv from 'keyv';
+import { LocalKeyService } from './local-key.service';
 
 @Injectable()
 export class CacheService {
@@ -12,6 +13,7 @@ export class CacheService {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly redisKeyService: RedisKeyService,
+    private readonly localKeyService: LocalKeyService,
   ) {}
 
   manager() {
@@ -31,5 +33,9 @@ export class CacheService {
 
   keys() {
     return this.redisKeyService;
+  }
+
+  localKeys() {
+    return this.localKeyService;
   }
 }

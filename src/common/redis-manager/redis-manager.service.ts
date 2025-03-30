@@ -10,7 +10,7 @@ import KeyvRedis from '@keyv/redis';
 @Injectable()
 export class RedisService implements OnModuleDestroy {
   private readonly logger = new Logger(RedisService.name);
-  private readonly appId: string;
+  private readonly namespace: string;
   private readonly client: RedisCluster | Redis;
   private readonly lockClient: Redlock;
   private readonly keyv: Keyv;
@@ -19,11 +19,8 @@ export class RedisService implements OnModuleDestroy {
     configService: ConfigService,
     private readonly keyService: RedisKeyService,
   ) {
-    this.appId = configService.getOrThrow<string>(EnvKeys.APP_ID);
-    const redis_url = configService.get<string>(EnvKeys.REDIS_URL);
-    if (!redis_url) {
-      throw new Error(`${EnvKeys.REDIS_URL} is not set`);
-    }
+    this.namespace = configService.getOrThrow<string>(EnvKeys.DATA_NAMESPACE);
+    const redis_url = configService.getOrThrow<string>(EnvKeys.REDIS_URL);
     this.client = RedisService.createClient(redis_url);
     this.lockClient = new Redlock([RedisService.createClient(redis_url)], {
       // The expected clock drift; for more details see:
@@ -59,7 +56,7 @@ export class RedisService implements OnModuleDestroy {
       store: new KeyvRedis(redis_url, {
         useUnlink: false,
       }),
-      namespace: this.appId,
+      namespace: this.namespace,
       useKeyPrefix: false,
     });
     this.keyv.on('error', (error) => {

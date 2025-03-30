@@ -4,25 +4,25 @@ import { EnvKeys } from '../env-keys.enum';
 
 @Injectable()
 export class RedisKeyService {
-  private readonly appId: string;
+  private readonly namespace: string;
 
   constructor(configService: ConfigService) {
-    this.appId = configService.getOrThrow<string>(EnvKeys.APP_ID);
+    this.namespace = configService.getOrThrow<string>(EnvKeys.DATA_NAMESPACE);
   }
 
   signatureCerts() {
-    return `${this.appId}:signature:certs`;
+    return `${this.namespace}:signature:certs`;
   }
 
   signatureKeypair(id: bigint) {
-    return `${this.appId}:signature:keypair:${id}`;
+    return `${this.namespace}:signature:keypair:${id}`;
   }
 
   signatureKeypairInitLock() {
-    return `${this.appId}:signature:keypair:init:lock`;
+    return `${this.namespace}:signature:keypair:init:lock`;
   }
 
   signatureKeypairAutoGenLock() {
-    return `${this.appId}:signature:keypair:auto_gen:lock`;
+    return `${this.namespace}:signature:keypair:auto_gen:lock`;
   }
 }

@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Catch,
   ExceptionFilter,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   UnauthorizedException,
@@ -34,6 +35,10 @@ export class ExceptionCacheFilter implements ExceptionFilter {
 
     if (exception instanceof UnauthorizedException) {
       status = 401;
+      code = 401;
+    } else if (exception instanceof ForbiddenException) {
+      status = 403;
+      code = 403;
     } else if (exception instanceof UserFacingError) {
       status = exception.status;
       code = exception.code;

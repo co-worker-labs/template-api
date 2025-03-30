@@ -9,7 +9,6 @@ export const KEYPAIR_LIST_LENGTH = 3;
 const CERT_TTL = 1000 * 60 * 60 * 24;
 const CERT_REFRESH_THRESHOLD = 1000 * 60 * 60 * 12;
 
-const LOCAL_CACHE_KEY = 'signature-keyObject';
 const LOCAL_CACHE_MAX_SIZE = KEYPAIR_LIST_LENGTH * 2;
 const LOCAL_CACHE_TTL = CERT_TTL;
 
@@ -47,7 +46,10 @@ export class SignatureService {
   }
 
   cachedKeyObjects() {
-    return this.cacheService.local(LOCAL_CACHE_KEY, LOCAL_CACHE_MAX_SIZE);
+    return this.cacheService.local(
+      this.cacheService.localKeys().signatureKeyObject(),
+      LOCAL_CACHE_MAX_SIZE,
+    );
   }
 
   async decrypt(id: bigint, encrypted: string): Promise<string> {

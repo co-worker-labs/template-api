@@ -58,14 +58,14 @@ export class TsPageResult<T> {
 export const TsPageQueryParam = createParamDecorator(
   (data: unknown, context: ExecutionContext) => {
     const request = context.switchToHttp().getRequest();
-    const { start, pageSize } = request.query;
+    const { start, limit } = request.query;
 
     let finalStart: number = 0;
     if (start) {
       finalStart = Number(start);
     }
 
-    let finalSize = parseInt(pageSize) || 10;
+    let finalSize = parseInt(limit) || 20;
 
     if (finalSize <= 0 || finalSize > 100) {
       finalSize = 10;

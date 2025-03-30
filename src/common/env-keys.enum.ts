@@ -1,10 +1,11 @@
 export enum EnvKeys {
   PORT = 'PORT',
   NODE_ENV = 'NODE_ENV',
-  CONTEXT_PATH = 'CONTEXT_PATH',
 
   // app
   APP_ID = 'APP_ID',
+  CONTEXT_PATH = 'CONTEXT_PATH',
+  DATA_NAMESPACE = 'DATA_NAMESPACE',
 
   // logging
   LOG_LEVEL = 'LOG_LEVEL',
@@ -14,15 +15,13 @@ export enum EnvKeys {
   HTTP_TIMEOUT = 'HTTP_TIMEOUT',
   HTTP_MAX_RETRIES = 'HTTP_MAX_RETRIES',
 
-  // request
-  REQUEST_CACHE_TTL = 'REQUEST_CACHE_TTL',
-
   // jwt
   JWKS_URI = 'JWKS_URI',
-  JWKS_FILE = 'JWKS_FILE',
+  AUTH_MOCK = 'AUTH_MOCK',
 
   // Redis
   REDIS_URL = 'REDIS_URL',
 
+  // i18n
   FALLBACK_LANGUAGE = 'FALLBACK_LANGUAGE',
 }

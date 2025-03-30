@@ -54,10 +54,10 @@ export function getPageResult<T>(
 export const PageQueryParam = createParamDecorator(
   (data: unknown, context: ExecutionContext) => {
     const request = context.switchToHttp().getRequest();
-    const { pageNo, pageSize } = request.query;
+    const { page, limit } = request.query;
 
-    let finalPage = parseInt(pageNo) || 1;
-    let finalSize = parseInt(pageSize) || 20;
+    let finalPage = parseInt(page) || 1;
+    let finalSize = parseInt(limit) || 20;
     if (finalPage < 1) {
       finalPage = 1;
     }

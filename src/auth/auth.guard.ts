@@ -13,9 +13,10 @@ import { EnvKeys } from '../common/env-keys.enum';
 import { UnauthorizedException } from '../common/exception/exception';
 import * as crypto from 'node:crypto';
 import * as jwks from 'jwks-rsa';
-import * as process from 'node:process';
 import { Errs } from '../common/error-codes';
+import { CacheService } from '../common/cache-manager/cache.service';
 
+const LOCAL_CACHE_MAX_SIZE = 6;
 const AUTH_HEADER = 'authorization';
 const re = /(\S+)\s+(\S+)/;
 
@@ -28,13 +29,14 @@ interface VerifyRes {
 export class AuthGuard implements CanActivate {
   private readonly logger = new Logger(AuthGuard.name);
   private readonly client: jwks.JwksClient;
-  private readonly publicKeyMap = new Map<string, crypto.KeyObject>();
-  private readonly mockEnabled = process.env.AUTH_MOCK === 'true';
+  private readonly mockEnabled: boolean;
 
   constructor(
     private reflector: Reflector,
+    private readonly cacheService: CacheService,
     configService: ConfigService,
   ) {
+    this.mockEnabled = configService.get<string>(EnvKeys.AUTH_MOCK) === 'true';
     const jwksUri = configService.get(EnvKeys.JWKS_URI);
     if (!jwksUri) {
       throw new Error(`Missing ${EnvKeys.JWKS_URI}`);
@@ -80,6 +82,13 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
+  private cachedKeyObjects() {
+    return this.cacheService.local(
+      this.cacheService.localKeys().jwks(),
+      LOCAL_CACHE_MAX_SIZE,
+    );
+  }
+
   private async verifyJwt(context: ExecutionContext): Promise<VerifyRes> {
     if (this.mockEnabled) {
       return this.verifyJwtOnlyDecode(context);
@@ -97,7 +106,7 @@ export class AuthGuard implements CanActivate {
               error: new UnauthorizedException(Errs.INVALID_TOKEN),
             };
           }
-          let publicKey = this.publicKeyMap.get(kid);
+          let publicKey = await this.cachedKeyObjects().get(kid);
           if (!publicKey) {
             const key = await this.client
               .getSigningKey(kid)
@@ -115,7 +124,7 @@ export class AuthGuard implements CanActivate {
               key: key.getPublicKey(),
               format: 'pem',
             });
-            this.publicKeyMap.set(kid, publicKey);
+            await this.cachedKeyObjects().set(kid, publicKey);
           }
 
           const payload = jwt.verify(token, publicKey, {
